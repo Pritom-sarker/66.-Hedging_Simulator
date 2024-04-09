@@ -85,8 +85,19 @@ def MM(dropdown):
     order4 = (val * additinonalMuliplier[3])  
     results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
     
+    # order - 5
+    val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
+    order5 = (val * additinonalMuliplier[4]) 
+    results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
+
     
-    results.append([0, ((order1 * pf[0])+(order3*pf[2]) ) - (order2 + order4)])
+    # order - 6
+    val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
+    order6 = (val * additinonalMuliplier[5]) 
+    results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
+    
+    
+    results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
     return results
 
 def analyze_weekly_performance(csv_file):
@@ -116,12 +127,13 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAU21_15m.csv'
-    baseRisk = 3
-    pf = [0.45,0.45, 0.45 ,0.45]
-    additinonalMuliplier = [1,1.5 ,1.2,1.2]
-    fee = 0.5
-    highOrder = 10 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
+    fileName = 'XAUUSD_60m (1).csv'
+    baseRisk = 1
+    pf = [0.45,0.45, 0.45 ,0.45, 0.45 ,0.45]
+    additinonalMuliplier = [1,1.2 ,1.2,1.2,1.2,1.2]
+    fee = 2
+    globalBalance = 1000
+    highOrder = 100 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 
     balance = 100
     df = pd.read_csv(fileName)
@@ -151,9 +163,9 @@ if __name__ == '__main__':
     print('Number Of Cycles ')
     print('\n___________\n')
     orders = list(df['Order Index'].values)
-    for id in range(0,4):
+    for id in range(0,6):
         temp = orders.count(id)
-        print("Cycle {} : {} Times ({}%)".format(id, temp, round((temp/len(orders))*100,2)))
+        print("Cycle {} : {} Times ({}%)".format(id+1, temp, round((temp/len(orders))*100,2)))
         
     print('\n___________\n')
     print('Hour calculation')
@@ -222,13 +234,13 @@ if __name__ == '__main__':
             data.append(round(results[int(indx)][1],2))
         else:
             data.append('LOSS')
-            temp1 = round(results[4][0],2)
+            temp1 = round(results[-1][0],2)
             if temp1 > highOrder* balance:
                 print('High Order Value!! ')
                 exit()
-            newBal += (balance * (results[4][1]/100))
-            data.append(round(results[4][1],2))
-        if newBal < 0:
+            newBal += (balance * (results[-1][1]/100))
+            data.append(round(results[-1][1],2))
+        if (newBal + globalBalance) < 0:
             print(' Margin call! Fuck!!! ')
             break
         if maxBal < newBal:
@@ -253,7 +265,6 @@ if __name__ == '__main__':
     print('\n___________\n')
     print('Loss stats')
     print('\n___________\n')
-    
     exit()
     
     
