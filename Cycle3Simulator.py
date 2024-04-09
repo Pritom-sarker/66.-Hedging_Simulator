@@ -55,19 +55,19 @@ def writeData(dt):
     col = ["Date",'Order Type', 'Entry Price', 'Cad Size',"middle line", 'SL - 1 ', 'TP - 1', 'SL - 2', 'TP - 2', 'Order Index', 'Outcome', 'Close Price']
     df = pd.DataFrame(allOrders, columns=col)
     df.to_csv('{}.csv'.format(fileName))
+    # print('here')
     
 
 if __name__ == "__main__":
-    input_file = "./Exness_XAUUSDm_2024_04.csv"  # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSDm_2024_04.csv"  # Replace with the path to your input CSV file
     timeframe = "15"
-    entryCandle_min = 5
+    entryCandle_min = 8
     entryCandle_max = 20
     pairName = "XAUUSD"
-    start_time = 12
+    start_time = 10
     end_time = 18
     tpReduce = 0.1
-    middleLineInput = 1
-    
+    middleLinePosition = 1
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
     allOrders = []
@@ -109,7 +109,7 @@ if __name__ == "__main__":
                 if direc: # BUY
                     sl = candle[1] - (cadSize*2)
                     tp = candle[1] + (cadSize* (1-tpReduce))
-                    middleLine = candle[1] - (cadSize*middleLineInput)
+                    middleLine = candle[1] - (cadSize*middleLinePosition)
                     # print('BUY')
                     # print('Open Price: ', candle[1])
                     # print('middleLine: ', middleLine)
@@ -128,8 +128,8 @@ if __name__ == "__main__":
                     data.append(0)
                 else: # SELL
                     sl = candle[1] + (cadSize*2)
-                    tp = candle[1] - (cadSize* (1-tpReduce))
-                    middleLine = candle[1] + (cadSize*middleLineInput)
+                    tp = candle[1] - (cadSize*0.9)
+                    middleLine = candle[1] + (cadSize*middleLinePosition)
                     # print('SELL')
                     # print('Open Price: ', candle[1])
                     # print('middle Line: ', middleLine)
@@ -175,6 +175,18 @@ if __name__ == "__main__":
                         data[-1] = orderCounter
                         # input'__4')
                         continue
+                    elif  row['Ask'] >= zeroLine and orderCounter == 3:  # order 3 -> BUY
+                        # print("new Order: ", row['Bid'])
+                        orderCounter = 4
+                        data[-1] = orderCounter
+                        # input'__3')
+                        continue
+                    elif row['Bid'] <= middleLine and orderCounter ==4: # order 4 -> SELL
+                        # print("new SELL Order Price: ", row['Bid'])
+                        orderCounter = 5
+                        data[-1] = orderCounter
+                        # input'__4')
+                        continue
                     
                     if orderCounter == 0 and row['Bid'] >= tp: # for the first order - BUY
                         # print('Its a win!! Order 1 ', "Price :", row["Ask"])
@@ -208,7 +220,23 @@ if __name__ == "__main__":
                         writeData(data)
                         break
                     
-                    if orderCounter == 3 and row['Ask'] >= sl2: # for loss order
+                    if orderCounter == 4 and row['Bid'] <= tp: # for 4th order
+                        # print("its a win!! Order 4", "Price :", row["Ask"])
+                        ifOrderRunning = False
+                        data.append('WIN')
+                        data.append(row['Bid'])
+                        writeData(data)
+                        break
+                    
+                    if orderCounter == 5 and row['Ask'] <= tp2: # for 4th order
+                        # print("its a win!! Order 4", "Price :", row["Ask"])
+                        ifOrderRunning = False
+                        data.append('WIN')
+                        data.append(row['Bid'])
+                        writeData(data)
+                        break
+                    
+                    if orderCounter == 5 and row['Ask'] >= sl: # for loss order
                         # print("its a Loss!! ", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('Loss')
@@ -240,6 +268,18 @@ if __name__ == "__main__":
                     elif row['Ask'] >= middleLine and orderCounter ==2: # order 4 - buy
                         # print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 3
+                        data[-1] = orderCounter
+                        # input'__4')    
+                        continue
+                    elif  row['Bid'] <= zeroLine and orderCounter == 3:  # order 3 - sell
+                        # print("new SELL Order Price: ", row['Bid'])
+                        orderCounter = 4
+                        data[-1] = orderCounter
+                        # input'__3')
+                        continue
+                    elif row['Ask'] >= middleLine and orderCounter ==4: # order 4 - buy
+                        # print("new BUY Order Price: ", row['Bid'])
+                        orderCounter = 5
                         data[-1] = orderCounter
                         # input'__4')    
                         continue
@@ -275,8 +315,24 @@ if __name__ == "__main__":
                         data.append(row['Bid'])
                         writeData(data)
                         break
+                        
+                    if  orderCounter == 4 and row['Ask'] <= tp: # for 3nd order - SELL
+                        # print("its a win!! Order 3", "Price :", row["Ask"])
+                        ifOrderRunning = False
+                        data.append('WIN')
+                        data.append(row['Bid'])
+                        writeData(data)
+                        break
                     
-                    if orderCounter == 3 and row['Bid'] <= sl2: # for loss order
+                    if orderCounter == 5 and row['Bid'] >= tp2: # for 4th order - BUY
+                        # print("its a win!! Order 4", "Price :", row["Ask"])
+                        ifOrderRunning = False
+                        data.append('WIN')
+                        data.append(row['Bid'])
+                        writeData(data)
+                        break
+                    
+                    if orderCounter == 5 and row['Bid'] <= sl: # for loss order
                         # print("its a Loss!!", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('LOSS')
