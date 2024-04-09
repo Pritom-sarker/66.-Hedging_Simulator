@@ -66,6 +66,7 @@ if __name__ == "__main__":
     start_time = 12
     end_time = 18
     tpReduce = 0.1
+    middleLineInput = 1
     
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                 if direc: # BUY
                     sl = candle[1] - (cadSize*2)
                     tp = candle[1] + (cadSize* (1-tpReduce))
-                    middleLine = candle[1] - (cadSize*0.5)
+                    middleLine = candle[1] - (cadSize*middleLineInput)
                     # print('BUY')
                     # print('Open Price: ', candle[1])
                     # print('middleLine: ', middleLine)
@@ -127,8 +128,8 @@ if __name__ == "__main__":
                     data.append(0)
                 else: # SELL
                     sl = candle[1] + (cadSize*2)
-                    tp = candle[1] - (cadSize*0.9)
-                    middleLine = candle[1] + (cadSize*0.5)
+                    tp = candle[1] - (cadSize* (1-tpReduce))
+                    middleLine = candle[1] + (cadSize*middleLineInput)
                     # print('SELL')
                     # print('Open Price: ', candle[1])
                     # print('middle Line: ', middleLine)
