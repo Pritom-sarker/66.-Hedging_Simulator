@@ -116,7 +116,7 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAU21_15m.csv'
+    fileName = 'XAUUSD_5m.csv'
     baseRisk = 3
     pf = [0.45,0.45, 0.45 ,0.45]
     additinonalMuliplier = [1,1.5 ,1.2,1.2]

@@ -67,7 +67,7 @@ def MM(dropdown):
     
     # order - 1
     val = (balance * baseRisk)/100
-    order1 = (val * additinonalMuliplier[0]) + (dropdown)
+    order1 = (val * additinonalMuliplier[0]) # + (dropdown/pf[0])
     results.append([order1, order1 * pf[0]])
     
     # order - 2
@@ -127,12 +127,12 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAUUSD_60m (1).csv'
-    baseRisk = 1
+    fileName = 'XAUUSD_c3_5m.csv'
+    baseRisk = 3
     pf = [0.45,0.45, 0.45 ,0.45, 0.45 ,0.45]
-    additinonalMuliplier = [1,1.2 ,1.2,1.2,1.2,1.2]
+    additinonalMuliplier = [1,1.5 ,1.2,1.1,1,1]
     fee = 2
-    globalBalance = 1000
+    globalBalance = 10000
     highOrder = 100 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 
     balance = 100
