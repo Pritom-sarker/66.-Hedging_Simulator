@@ -130,6 +130,7 @@ if __name__ == "__main__":
                     data.append(0)
                     data.append(0)
                     data.append(0)
+                    continue
                 else: # SELL
                     sl = candle[1] + (cadSize*2)
                     tp = candle[1] - (cadSize*0.9)
@@ -150,6 +151,7 @@ if __name__ == "__main__":
                     data.append(0)
                     data.append(0)
                     data.append(0)
+                    continue
                 #--input('next..')
         if ifOrderRunning:
             for ind,row in dataframe.iterrows():

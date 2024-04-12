@@ -55,17 +55,17 @@ def writeData(dt):
     col = ["Date",'Order Type', 'Entry Price', 'Cad Size',"middle line", 'SL - 1 ', 'TP - 1', 'SL - 2', 'TP - 2', 'Order Index', 'Outcome', 'Close Price']
     df = pd.DataFrame(allOrders, columns=col)
     df.to_csv('{}.csv'.format(fileName))
-    input("Trade Closed!!")
+    # input("Trade Closed!!")
     
 
 if __name__ == "__main__":
-    input_file = "Exness_EURJPY_2023_01.csv"  # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSD_2024_04.csv"  # Replace with the path to your input CSV file
     timeframe = "15"
-    entryCandle_min = 0.2
-    entryCandle_max = 0.5
+    entryCandle_min = 3
+    entryCandle_max = 9
     pairName = "XAUUSD"
-    start_time = 12
-    end_time = 18
+    start_time = 0
+    end_time = 24
     tpReduce = 0.1
     middleLineInput = 1
     
@@ -127,6 +127,7 @@ if __name__ == "__main__":
                     data.append(0)
                     data.append(0)
                     data.append(0)
+                    continue
                 else: # SELL
                     sl = candle[1] + (cadSize*2)
                     tp = candle[1] - (cadSize* (1-tpReduce))
@@ -147,44 +148,21 @@ if __name__ == "__main__":
                     data.append(0)
                     data.append(0)
                     data.append(0)
-                input('next..')
+                    continue
+                # input('next..')
         if ifOrderRunning:
             for ind,row in dataframe.iterrows():
                 # if orderCounter > 0:
-                #     print("PRICE - ",row['Bid'])
+                print("PRICE - ",row['Bid'])
                 if orderType: # if its a BUY
                     # check for new order (2,3,4)
-                    if row['Bid'] <= middleLine and orderCounter == 0: # order 2 -> SELL
-                        print("new SELL Order Price: ", row['Bid'])
-                        orderCounter = 1
-                        sl2 = tp + (cadBodySize*tpReduce)
-                        tp2 = sl + (cadBodySize*tpReduce)
-                        data[-3] = sl2
-                        data[-2] = tp2
-                        data[-1] = orderCounter
-                        print('2nd TP: ', tp2)
-                        print("2nd SL: ",sl2)
-                        input('__2')
-                        continue
-                    elif  row['Ask'] >= zeroLine and orderCounter == 1:  # order 3 -> BUY
-                        print("new Order: ", row['Ask'])
-                        orderCounter = 2
-                        data[-1] = orderCounter
-                        input('__3')
-                        continue
-                    elif row['Bid'] <= middleLine and orderCounter ==2: # order 4 -> SELL
-                        print("new SELL Order Price: ", row['Bid'])
-                        orderCounter = 3
-                        data[-1] = orderCounter
-                        input('__4')
-                        continue
-                    
                     if orderCounter == 0 and row['Bid'] >= tp: # for the first order - BUY
                         print('Its a win!! Order 1 ', "Price :", row["Ask"])
                         data.append('WIN')
                         data.append(row['Bid'])
                         ifOrderRunning = False
                         writeData(data)
+                        # input('ssss')
                         break
                         
                     if orderCounter == 1 and row['Ask'] <= tp2: # for 2nd order - SELL
@@ -218,12 +196,9 @@ if __name__ == "__main__":
                         data.append(row['Bid'])
                         writeData(data)
                         break
-                            
-                
-                if not orderType: # if its a Sell
-                        
-                    if row['Ask'] >= middleLine and orderCounter == 0: # order 2 - BUY
-                        print("new BUY Order Price: ", row['Bid'])
+                    
+                    if row['Bid'] <= middleLine and orderCounter == 0: # order 2 -> SELL
+                        print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 1
                         sl2 = tp + (cadBodySize*tpReduce)
                         tp2 = sl + (cadBodySize*tpReduce)
@@ -231,21 +206,24 @@ if __name__ == "__main__":
                         data[-2] = tp2
                         data[-1] = orderCounter
                         print('2nd TP: ', tp2)
-                        print("2nd SL: ",sl2) 
-                        input('__2') 
+                        print("2nd SL: ",sl2)
+                        # input('__2')
                         continue
-                    elif  row['Bid'] <= zeroLine and orderCounter == 1:  # order 3 - sell
-                        print("new SELL Order Price: ", row['Bid'])
+                    elif  row['Ask'] >= zeroLine and orderCounter == 1:  # order 3 -> BUY
+                        print("new Order: ", row['Ask'])
                         orderCounter = 2
                         data[-1] = orderCounter
-                        input('__3')
+                        # input('__3')
                         continue
-                    elif row['Ask'] >= middleLine and orderCounter ==2: # order 4 - buy
-                        print("new BUY Order Price: ", row['Bid'])
+                    elif row['Bid'] <= middleLine and orderCounter ==2: # order 4 -> SELL
+                        print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 3
                         data[-1] = orderCounter
-                        input('__4')    
+                        # input('__4')
                         continue
+                            
+                
+                if not orderType: # if its a Sel
                     
                     if orderCounter == 0 and row['Ask'] <= tp: # for the first order - SELL
                         print('Its a win!! Order 1', "Price :", row["Ask"])
@@ -253,6 +231,7 @@ if __name__ == "__main__":
                         data.append(row['Bid'])
                         ifOrderRunning = False
                         writeData(data)
+                        # input('ssss')
                         break
                         
                     if orderCounter == 1 and row['Bid'] >= tp2: # for 2nd order - BUY
@@ -287,5 +266,28 @@ if __name__ == "__main__":
                         writeData(data)
                         break    
                         
-                        
+                    if row['Ask'] >= middleLine and orderCounter == 0: # order 2 - BUY
+                        print("new BUY Order Price: ", row['Bid'])
+                        orderCounter = 1
+                        sl2 = tp + (cadBodySize*tpReduce)
+                        tp2 = sl + (cadBodySize*tpReduce)
+                        data[-3] = sl2
+                        data[-2] = tp2
+                        data[-1] = orderCounter
+                        print('2nd TP: ', tp2)
+                        print("2nd SL: ",sl2) 
+                        # input('__2') 
+                        continue
+                    elif  row['Bid'] <= zeroLine and orderCounter == 1:  # order 3 - sell
+                        print("new SELL Order Price: ", row['Bid'])
+                        orderCounter = 2
+                        data[-1] = orderCounter
+                        # input('__3')
+                        continue
+                    elif row['Ask'] >= middleLine and orderCounter ==2: # order 4 - buy
+                        print("new BUY Order Price: ", row['Bid'])
+                        orderCounter = 3
+                        data[-1] = orderCounter
+                        # input('__4')    
+                        continue
         # print('-------------------------------')
