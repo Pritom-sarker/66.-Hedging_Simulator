@@ -63,42 +63,81 @@ def count_rows_at_hour(csv_file, hour):
 
 def MM(dropdown):
     
-    results = []
-    
-    # order - 1
-    val = (balance * baseRisk)/100
-    order1 = (val * additinonalMuliplier[0]) # + (dropdown/pf[0])
-    results.append([order1, order1 * pf[0]])
-    
-    # order - 2
-    val = (order1 * (1/pf[1]) ) 
-    order2 = (val * additinonalMuliplier[1])  
-    results.append([order2, (order2 * pf[1])-order1])
-    
-    # order - 3
-    val = (order2 * (1/pf[2]) ) - (order1 * pf[0]) 
-    order3 = (val * additinonalMuliplier[2]) 
-    results.append([order3 , ((order3 * pf[2])+(order1*pf[0])) - (order2)])
+    if dropdown == 0:
+        results = []
+        
+        # order - 1
+        val = (balance * baseRisk)/100
+        order1 = (val * additinonalMuliplier[0]) 
+        results.append([order1, order1 * pf[0]])
+        
+        # order - 2
+        val = (order1 * (1/pf[1]) ) 
+        order2 = (val * additinonalMuliplier[1])  
+        results.append([order2, (order2 * pf[1])-order1])
+        
+        # order - 3
+        val = (order2 * (1/pf[2]) ) - (order1 * pf[0]) 
+        order3 = (val * additinonalMuliplier[2]) 
+        results.append([order3 , ((order3 * pf[2])+(order1*pf[0])) - (order2)])
 
-    # order - 4
-    val = ((order3 * (1/pf[3]) ) + (order1 * (1/pf[3]))) - (order2 * pf[1]) 
-    order4 = (val * additinonalMuliplier[3])  
-    results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
-    
-    # order - 5
-    val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
-    order5 = (val * additinonalMuliplier[4]) 
-    results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
+        # order - 4
+        val = ((order3 * (1/pf[3]) ) + (order1 * (1/pf[3]))) - (order2 * pf[1]) 
+        order4 = (val * additinonalMuliplier[3])  
+        results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
+        
+        # order - 5
+        val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
+        order5 = (val * additinonalMuliplier[4]) 
+        results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
 
-    
-    # order - 6
-    val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
-    order6 = (val * additinonalMuliplier[5]) 
-    results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
-    
-    
-    results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
-    return results
+        
+        # order - 6
+        val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
+        order6 = (val * additinonalMuliplier[5]) 
+        results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
+        
+        
+        results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
+        return results
+    else:
+        results = []
+        
+        # order - 1
+        val = (balance * baseRiskRush)/100
+        order1 = (val * additinonalMuliplierRush[0]) 
+        results.append([order1, order1 * pf[0]])
+        
+        # order - 2
+        val = (order1 * (1/pf[1]) ) 
+        order2 = (val * additinonalMuliplierRush[1])  
+        results.append([order2, (order2 * pf[1])-order1])
+        
+        # order - 3
+        val = (order2 * (1/pf[2]) ) - (order1 * pf[0]) 
+        order3 = (val * additinonalMuliplierRush[2]) 
+        results.append([order3 , ((order3 * pf[2])+(order1*pf[0])) - (order2)])
+
+        # order - 4
+        val = ((order3 * (1/pf[3]) ) + (order1 * (1/pf[3]))) - (order2 * pf[1]) 
+        order4 = (val * additinonalMuliplierRush[3])  
+        results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
+        
+        # order - 5
+        val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
+        order5 = (val * additinonalMuliplierRush[4]) 
+        results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
+
+        
+        # order - 6
+        val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
+        order6 = (val * additinonalMuliplierRush[5]) 
+        results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
+        
+        
+        results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
+        return results
+        
 
 def analyze_weekly_performance(csv_file):
     # Read CSV file
@@ -127,13 +166,15 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAUUSD_c3_5m.csv'
-    baseRisk = 3
+    fileName = 'XAUUSD_c3_15m.csv'
+    baseRisk = 0.5
     pf = [0.45,0.45, 0.45 ,0.45, 0.45 ,0.45]
-    additinonalMuliplier = [1,1.5 ,1.2,1.1,1,1]
+    additinonalMuliplier = [1,1.2 ,1.2,1.1,1,1]
+    baseRiskRush = 5
+    additinonalMuliplierRush = [1,1.5 ,1.2,1.1,1,1]
     fee = 2
     globalBalance = 10000
-    highOrder = 100 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
+    highOrder = 1000 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 
     balance = 100
     df = pd.read_csv(fileName)
@@ -196,23 +237,8 @@ if __name__ == '__main__':
             dropDownCounter = 0
             lastDrowdown = 0
             
-        # when we have dropdown for the first time
-        if dropDownCounter == 0 and abs(maxBal - newBal) > 1:
-            dropDownCounter+=1 
-            lastDrowdown =  abs(maxBal - newBal)
-            eachStepDropdown = lastDrowdown/fee
-            # print('0',eachStepDropdown)
-        
-        # if we have loss then it will re calculate again 
-        if dropDownCounter > 0 and lastDrowdown <  abs(maxBal - newBal):
-            dropDownCounter=1 
-            lastDrowdown =  abs(maxBal - newBal)
-            eachStepDropdown = lastDrowdown/fee
-            # print('1',eachStepDropdown)
-            
-        if  dropDownCounter != 0: #dropDownCounter < fee+1 and
-            dropDownCounter+=1 
-            drp = eachStepDropdown
+        if  maxBal > newBal: #dropDownCounter < fee+1 and
+            drp = 1
             # print('Here!!')
         else: 
             drp = 0

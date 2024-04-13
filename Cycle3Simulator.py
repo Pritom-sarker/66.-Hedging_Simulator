@@ -60,10 +60,10 @@ def writeData(dt):
     
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSD_2023.csv"  # Replace with the path to your input CSV file
-    timeframe = "5"
-    entryCandle_min = 3
-    entryCandle_max = 20
+    input_file = "Exness_XAUUSD_2023.csv"   # Replace with the path to your input CSV file
+    timeframe = "15"
+    entryCandle_min = 4
+    entryCandle_max = 12
     pairName = "XAUUSD"
     start_time = 0
     end_time = 24

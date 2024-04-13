@@ -59,7 +59,7 @@ def writeData(dt):
     
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSD_2024_04.csv"  # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSD_2023_04.csv"  # Replace with the path to your input CSV file
     timeframe = "15"
     entryCandle_min = 3
     entryCandle_max = 9
