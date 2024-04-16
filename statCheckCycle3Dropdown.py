@@ -63,81 +63,42 @@ def count_rows_at_hour(csv_file, hour):
 
 def MM(dropdown):
     
-    if dropdown == 0:
-        results = []
-        
-        # order - 1
-        val = (balance * baseRisk)/100
-        order1 = (val * additinonalMuliplier[0]) 
-        results.append([order1, order1 * pf[0]])
-        
-        # order - 2
-        val = (order1 * (1/pf[1]) ) 
-        order2 = (val * additinonalMuliplier[1])  
-        results.append([order2, (order2 * pf[1])-order1])
-        
-        # order - 3
-        val = (order2 * (1/pf[2]) ) - (order1 * pf[0]) 
-        order3 = (val * additinonalMuliplier[2]) 
-        results.append([order3 , ((order3 * pf[2])+(order1*pf[0])) - (order2)])
+    results = []
+    
+    # order - 1
+    val = (balance * baseRisk)/100
+    order1 = (val * additinonalMuliplier[0]) + (dropdown)
+    results.append([order1, order1 * pf[0]])
+    
+    # order - 2
+    val = (order1 * (1/pf[1]) ) 
+    order2 = (val * additinonalMuliplier[1])  
+    results.append([order2, (order2 * pf[1])-order1])
+    
+    # order - 3
+    val = (order2 * (1/pf[2]) ) - (order1 * pf[0]) 
+    order3 = (val * additinonalMuliplier[2]) 
+    results.append([order3 , ((order3 * pf[2])+(order1*pf[0])) - (order2)])
 
-        # order - 4
-        val = ((order3 * (1/pf[3]) ) + (order1 * (1/pf[3]))) - (order2 * pf[1]) 
-        order4 = (val * additinonalMuliplier[3])  
-        results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
-        
-        # order - 5
-        val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
-        order5 = (val * additinonalMuliplier[4]) 
-        results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
+    # order - 4
+    val = ((order3 * (1/pf[3]) ) + (order1 * (1/pf[3]))) - (order2 * pf[1]) 
+    order4 = (val * additinonalMuliplier[3])  
+    results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
+    
+    # order - 5
+    val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
+    order5 = (val * additinonalMuliplier[4]) 
+    results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
 
-        
-        # order - 6
-        val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
-        order6 = (val * additinonalMuliplier[5]) 
-        results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
-        
-        
-        results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
-        return results
-    else:
-        results = []
-        
-        # order - 1
-        val = (balance * baseRiskRush)/100
-        order1 = (val * additinonalMuliplierRush[0]) 
-        results.append([order1, order1 * pf[0]])
-        
-        # order - 2
-        val = (order1 * (1/pf[1]) ) 
-        order2 = (val * additinonalMuliplierRush[1])  
-        results.append([order2, (order2 * pf[1])-order1])
-        
-        # order - 3
-        val = (order2 * (1/pf[2]) ) - (order1 * pf[0]) 
-        order3 = (val * additinonalMuliplierRush[2]) 
-        results.append([order3 , ((order3 * pf[2])+(order1*pf[0])) - (order2)])
-
-        # order - 4
-        val = ((order3 * (1/pf[3]) ) + (order1 * (1/pf[3]))) - (order2 * pf[1]) 
-        order4 = (val * additinonalMuliplierRush[3])  
-        results.append([order4 , ((order4 * pf[3])+(order2*pf[1]) )- (order1 + order3)])
-        
-        # order - 5
-        val = ((order2 * (1/pf[4]) ) + (order4 * (1/pf[4]) )) - ((order1 * pf[0]) + (order3 * pf[2]) )
-        order5 = (val * additinonalMuliplierRush[4]) 
-        results.append([order5 , ((order5 * pf[4])+(order3 * pf[2])+(order1*pf[0])) - (order2+order4)])
-
-        
-        # order - 6
-        val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
-        order6 = (val * additinonalMuliplierRush[5]) 
-        results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
-        
-        
-        results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
-        return results
-        
+    
+    # order - 6
+    val = ((order1 * (1/pf[5]) ) + (order3 * (1/pf[5]) ) + (order5 * (1/pf[5]) )) - ((order2 * pf[1]) + (order4 * pf[3]) )
+    order6 = (val * additinonalMuliplier[5]) 
+    results.append([order6 , ((order6 * pf[5])+(order4 * pf[3])+(order2*pf[1])) - (order1+order3+order5)])
+    
+    
+    results.append([0, ((order1 * pf[0])+(order3*pf[2])+(order5*pf[4]) ) - (order2 + order6 +order4)])
+    return results
 
 def analyze_weekly_performance(csv_file):
     # Read CSV file
@@ -166,14 +127,13 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAUUSD_c4_15m.csv'
-    baseRisk = 5
+    fileName = 'XAU.22_c3_240m.csv'
+    baseRisk = 2
     pf = [0.45,0.45, 0.45 ,0.45, 0.45 ,0.45]
-    additinonalMuliplier = [1,1.2 ,1.2,0.8,0.8,0.8]
-    baseRiskRush = 1
-    additinonalMuliplierRush = [1,1.2 ,1.2,1.1,1,1]
-    globalBalance = 10000
-    highOrder = 1000 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
+    additinonalMuliplier = [1,1.3,1.2,1.1,1.1,1.1]
+    fee = 20
+    globalBalance = 1000
+    highOrder = 20 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 
     balance = 100
     df = pd.read_csv(fileName)
@@ -187,8 +147,6 @@ if __name__ == '__main__':
     print(df.head())
     outcome = list(df['Outcome'].values)
     
-    
-    
     win = outcome.count('WIN')
     print('\n___________\n')
     print('Win Rate Analysis')
@@ -200,15 +158,15 @@ if __name__ == '__main__':
     print("Back to Back Loss: ", max_back_to_back_occurrence(outcome))
     print("win rate %: ",round( (win /len(outcome))*100,2) )
     
+    
     print('\n___________\n')
     print('Number Of Cycles ')
     print('\n___________\n')
     orders = list(df['Order Index'].values)
-    for id in range(0,12):
+    for id in range(0,6):
         temp = orders.count(id)
         print("Cycle {} : {} Times ({}%)".format(id+1, temp, round((temp/len(orders))*100,2)))
-    
-    exit()
+        
     print('\n___________\n')
     print('Hour calculation')
     print('\n___________\n')
@@ -225,11 +183,11 @@ if __name__ == '__main__':
     maxBal = balance
     all_data = []
     dropdowns = []
+    ifLoss = []
     dropDownCounter = 0
     lastDrowdown = 0
     eachStepDropdown = 0
-    maxOrderSize = []
-    ifLoss = []
+    orderAmount = []
     for ind, row in df.iterrows():
         data = []
         out = row['Outcome']
@@ -240,8 +198,23 @@ if __name__ == '__main__':
             dropDownCounter = 0
             lastDrowdown = 0
             
-        if  maxBal > newBal: #dropDownCounter < fee+1 and
-            drp = 1
+        # when we have dropdown for the first time
+        if dropDownCounter == 0 and abs(maxBal - newBal) > 1:
+            dropDownCounter+=1 
+            lastDrowdown =  abs(maxBal - newBal)
+            eachStepDropdown = lastDrowdown/fee
+            # print('0',eachStepDropdown)
+        
+        # if we have loss then it will re calculate again 
+        if dropDownCounter > 0 and lastDrowdown <  abs(maxBal - newBal):
+            dropDownCounter=1 
+            lastDrowdown =  abs(maxBal - newBal)
+            eachStepDropdown = lastDrowdown/fee
+            # print('1',eachStepDropdown)
+            
+        if  dropDownCounter != 0: #dropDownCounter < fee+1 and
+            dropDownCounter+=1 
+            drp = eachStepDropdown
             # print('Here!!')
         else: 
             drp = 0
@@ -261,7 +234,7 @@ if __name__ == '__main__':
                 exit()
             newBal +=  (balance * (results[int(indx)][1]/100))
             data.append(round(results[int(indx)][1],2))
-            maxOrderSize.append(round(results[int(indx)][0],2))
+            orderAmount.append(round(results[int(indx)][0],2))
         else:
             data.append('LOSS')
             temp1 = round(results[-1][0],2)
@@ -270,7 +243,7 @@ if __name__ == '__main__':
                 exit()
             newBal += (balance * (results[-1][1]/100))
             data.append(round(results[-1][1],2))
-            maxOrderSize.append(round(results[-1][0],2))
+            orderAmount.append(round(results[-1][0],2))
         if (newBal + globalBalance) < 0:
             print(' Margin call! Fuck!!! ')
             break
@@ -293,11 +266,12 @@ if __name__ == '__main__':
     df1.to_csv('final_{}'.format(fileName))
     print('FInal balance (%): ', newBal)
     print('Max Dropdown: ', round(max(dropdowns),2))
-    print("Max Loss Can Be : ", min(ifLoss))
+    print('Max Loss Can be: ', min(ifLoss))
     print('\n___________\n')
     print('Loss stats')
     print('\n___________\n')
-
+    exit()
+    
     
     losses_per_week, losses_per_month, weeks_with_loss, weeks_without_loss = count_losses_per_period(fileName)
     print("Number of 'LOSS' per week:")
@@ -308,7 +282,14 @@ if __name__ == '__main__':
     print("Weeks without loss:", weeks_without_loss)
     
     
+    print('\n___________\n')
+    print('overall weeekly stats')
+    print('\n___________\n')
+  
+    weekly_metrics, max_gain_week, min_gain_week = analyze_weekly_performance(df1)
 
+    print("Weekly Metrics:")
+    print(weekly_metrics)
     
     
  
