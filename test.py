@@ -43,32 +43,100 @@ def create_candle(df):
     
 def checkCandleBody(cad):
     size = abs(cad[0] - cad[1])
-    upCandle = False
+    upCandle = 'RED'
     if (cad[0] - cad[1]) < 0: 
         # if True then its a GREEN candle
-        upCandle = True
-    return size,upCandle
+        upCandle = "GREEN"
+        
+    return [size,upCandle]
 
-def writeData(dt):
+def writeData(dt, dte):
     global allOrders,fileName
+    dt.append(dte)
     allOrders.append(dt)
-    col = ["Date",'Order Type', 'Entry Price', 'Cad Size',"middle line", 'SL - 1 ', 'TP - 1', 'SL - 2', 'TP - 2', 'Order Index', 'Outcome', 'Close Price']
+    col = ["Date",'Order Type', 'Entry Price', 'Cad Size',"middle line", 'SL - 1 ', 'TP - 1', 'SL - 2', 'TP - 2', 'Order Index', 'Outcome', 'Close Price',"Close Time"]
     df = pd.DataFrame(allOrders, columns=col)
     df.to_csv('{}.csv'.format(fileName))
-    input("Trade Closed!!")
+    #--input('Order Closed!! ')
+    # #--print('here')
+
+def v2Analysis(candles):
+    global oldCandlePriceMove
+    print('\n\n')
+    print(candles)
+    cadColor = candles[0][1]
     
+    bodySize = 0
+    for cad in candles:
+        if cadColor != cad[1]:
+            print('Color missmatch')
+            return False
+        bodySize += cad[0]
+    
+    if oldCandlePriceMove <= bodySize:
+        print('Color matched and Body size matched too, Body Size: ',bodySize)
+        return True
+    else:
+        print('Color Matched but body size isnot! ')
+        return False
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSD_2024_04.csv"  # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSDm_2024.csv"   # Replace with the path to your input CSV file
     timeframe = "15"
-    entryCandle_min = 3
-    entryCandle_max = 9
     pairName = "XAUUSD"
+    
+    # new inputs
+    numberOfOldCandleColor = 3
+    oldCandlePriceMove = 5 # points
+    FinalCandleSize =  3 # points
+    
     start_time = 0
     end_time = 24
     tpReduce = 0.1
-    middleLineInput = 1
-    
+    middleLinePosition = 1
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
-    print(minute_dataframes)
+    allOrders = []
+    data = []
+    ifOrderRunning = False
+    orderType = False # true = BUY and False = SELL
+    sl = 0
+    tp = 0
+    sl2 = 0
+    tp2 = 0
+    cadBodySize = 0
+    fileName = "{}_ci_{}m".format(pairName, timeframe  )
+        
+    
+    zeroLine = 0
+    middleLine = 0
+    orderCounter = 0
+    candlesDataHub = []
+    
+    
+    # Example: Accessing dataframes for each minute
+    for minute, dataframe in minute_dataframes.items():
+        try:
+            candleData = create_candle(dataframe)
+        except:
+            print("Error creating Candle",minute)
+            # print(dataframe.head())
+            # input("XXX")
+            continue
+
+        candleInfo = checkCandleBody(candleData)
+        # candleInfo.append(minute)
+        candlesDataHub.append(candleInfo)
+        print(candleInfo)
+        
+        if not ifOrderRunning:
+            # at least some old candle needed
+            if len(candlesDataHub) > numberOfOldCandleColor :
+                cads = candlesDataHub[-numberOfOldCandleColor-1:-1]
+                prevCandleFlag = v2Analysis(cads)
+                if prevCandleFlag:
+                    candleFlag = cads[0][1]
+                    if candleFlag != candlesDataHub[-1][1]:
+                        if candlesDataHub[-1][0] > FinalCandleSize :
+                            print(candlesDataHub[-1])
+                            input('xxxx')
