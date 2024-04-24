@@ -81,14 +81,14 @@ def v2Analysis(candles):
         return False
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSDm_2024_01.csv"   # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSDm_2024.csv"   # Replace with the path to your input CSV file
     timeframe = "15"
     pairName = "XAUUSD"
     
     # new inputs
-    numberOfOldCandleColor = 2
-    oldCandlePriceMove = 3 # points
-    FinalCandleSize =  1 # points
+    numberOfOldCandleColor = 3
+    oldCandlePriceMove = 10 # points
+    FinalCandleSize =  4 # points
     
     start_time = 0
     end_time = 24
@@ -118,6 +118,12 @@ if __name__ == "__main__":
     for minute, dataframe in minute_dataframes.items():
         
         print(f"Minute: {minute}")
+        
+        if not is_between_time(str(minute)):
+            print('skip!! - ',minute)
+            # input('here')
+            continue  
+        
         try:
             candle = create_candle(dataframe)
         except:
@@ -138,11 +144,11 @@ if __name__ == "__main__":
                 prevCandleFlag = v2Analysis(cads)
                 if prevCandleFlag:
                     candleFlag = cads[0][1]
-                    if candleFlag != candlesDataHub[-1][1]:
+                    if candleFlag == candlesDataHub[-1][1]: # change here.......... == Same color candle or != differnt color
                         if candlesDataHub[-1][0] > FinalCandleSize :
                             ##-------print(candlesDataHub[-1])
                             # #-------input('xxxx')
-                            #-------print('NEW ORDER !!!!!!! Order! ', minute)
+                            print('\n\n\n NEW ORDER !!!!!!! Order! ', minute)
                             # continue
                             zeroLine = candle[1] 
                             ifOrderRunning = True

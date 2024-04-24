@@ -158,10 +158,10 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAUUSD_c4_15m.csv'
-    baseRiskRush = 2
+    fileName = 'XAUUSD_ci_15m.csv'
+    baseRiskRush = 5
     pf = [0.45,1, 0.45 ,1, 0.45 ,1, 0.45 ,1, 0.45 ,1, 0.45 ,1]
-    additinonalMuliplierRush = [1,1.4 ,1.3,1.2,1.1,1,1,1,0.8,0.8,0.8,0.8]
+    additinonalMuliplierRush = [1,2 ,1.3,1.2,1.1,1,1,1,0.8,0.8,0.8,0.8]
     globalBalance = 10000
     highOrder = 1000 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     for id in range(0,12):
         temp = orders.count(id)
         print("Cycle {} : {} Times ({}%)".format(id+1, temp, round((temp/len(orders))*100,2)))
-    
+    # exit()
     print('\n___________\n')
     print('Hour calculation')
     print('\n___________\n')
