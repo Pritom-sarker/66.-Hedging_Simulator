@@ -81,19 +81,20 @@ def v2Analysis(candles):
         return False
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSDm_2024.csv"   # Replace with the path to your input CSV file
-    timeframe = "15"
-    pairName = "XAUUSD"
+    input_file = "Exness_USDJPY_2022.csv"   # Replace with the path to your input CSV file
+    timeframe = "60"
+    pairName = "USDJPY"
     
     # new inputs
-    numberOfOldCandleColor = 3
-    oldCandlePriceMove = 10 # points
-    FinalCandleSize =  4 # points
+    numberOfOldCandleColor = 2
+    oldCandlePriceMove = 0.15 # points
+    FinalCandleSize =  0.1 # points
+    tpReduce = 0.1
+    middleLinePosition = 1.25
+    newFirstOrderTP = 2 # ex. if u put 1.25 then, 1.25 * CANDLE BODY will be TP
     
     start_time = 0
-    end_time = 24
-    tpReduce = 0.1
-    middleLinePosition = 1
+    end_time = 14
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
     allOrders = []
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     sl2 = 0
     tp2 = 0
     cadBodySize = 0
-    fileName = "{}_ci_{}m".format(pairName, timeframe  )
+    fileName = "{}_ci_v2_{}m".format(pairName, timeframe  )
         
     
     zeroLine = 0
@@ -133,8 +134,8 @@ if __name__ == "__main__":
             continue
 
         candleInfo = checkCandleBody(candle)
-        # candleInfo.append(minute)
         candlesDataHub.append(candleInfo)
+        # candleInfo.append(minute)
         ##-------print(candleInfo)
         
         if not ifOrderRunning:
@@ -159,11 +160,7 @@ if __name__ == "__main__":
                                 sl = candle[1] - (cadBodySize*2)
                                 tp = candle[1] + (cadBodySize* (1-tpReduce))
                                 middleLine = candle[1] - (cadBodySize*middleLinePosition)
-                                #-------print('BUY')
-                                #-------print('Open Price: ', candle[1])
-                                #-------print('middleLine: ', middleLine)
-                                #-------print('SL: ', sl)
-                                #-------print('tp: ', tp)
+                                tempTP = candle[1] + (cadBodySize* newFirstOrderTP)
                                 data = []
                                 data.append(minute)
                                 data.append('BUY')
@@ -175,12 +172,18 @@ if __name__ == "__main__":
                                 data.append(0)
                                 data.append(0)
                                 data.append(0)
+                                #-------print('BUY')
+                                #-------print('Open Price: ', candle[1])
+                                #-------print('middleLine: ', middleLine)
+                                #-------print('SL: ', sl)
+                                #-------print('tp: ', tp)
                                 #-------input('\n\n\n\n\Order Placed next..')
                                 continue
                             else: # SELL
                                 sl = candle[1] + (cadBodySize*2)
                                 tp = candle[1] - (cadBodySize*0.9)
                                 middleLine = candle[1] + (cadBodySize*middleLinePosition)
+                                tempTP = candle[1] - (cadBodySize* newFirstOrderTP)
                                 #-------print('SELL')
                                 #-------print('Open Price: ', candle[1])
                                 #-------print('middle Line: ', middleLine)
@@ -277,7 +280,7 @@ if __name__ == "__main__":
                         #-------input('__12')
                         continue
                     
-                    if orderCounter == 0 and row['Bid'] >= tp: # for the first order - BUY
+                    if orderCounter == 0 and row['Bid'] >= tempTP: # for the first order - BUY
                         #-------print('Its a win!! Order 1 ', "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
@@ -375,10 +378,10 @@ if __name__ == "__main__":
                     
                     if orderCounter == 11 and row['Ask'] >= sl2: # for loss order
                         #-------print("its a Loss!! ", "Price :", row["Ask"])
+                        writeData(data, ind)
                         ifOrderRunning = False
                         data.append('Loss')
                         data.append(row['Bid'])
-                        writeData(data, ind)
                         break
                             
                 
@@ -387,8 +390,8 @@ if __name__ == "__main__":
                     if row['Ask'] >= middleLine and orderCounter == 0: # order 2 - BUY
                         #-------print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 1
-                        sl2 = tp + (cadBodySize*tpReduce)
-                        tp2 = sl + (cadBodySize*tpReduce)
+                        sl2 = tp - (cadBodySize*tpReduce)
+                        tp2 = sl - (cadBodySize*tpReduce)
                         data[-3] = sl2
                         data[-2] = tp2
                         data[-1] = orderCounter
@@ -457,7 +460,7 @@ if __name__ == "__main__":
                         #-------input('__12')    
                         continue
                     
-                    if orderCounter == 0 and row['Ask'] <= tp: # for the first order - SELL
+                    if orderCounter == 0 and row['Ask'] <= tempTP: # for the first order - SELL
                         #-------print('Its a win!! Order 1', "Price :", row["Ask"])
                         data.append('WIN')
                         data.append(row['Bid'])

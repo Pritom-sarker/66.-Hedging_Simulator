@@ -1,8 +1,8 @@
 
 balance = 100
 baseRisk = 2
-pf = [0.45,0.45, 0.45 ,0.45 ,0.45 ,0.45 ]
-additinonalMuliplier =  [1,1.2 ,1.2,0.8,0.8,0.8]
+pf = [0.45,0.375, 0.45 ,0.375 ,0.45 ,0.375 ]
+additinonalMuliplier =  [1,1.2 ,1.2,1,0.95,0.9]
 fee = 0
 dropdown = 0
 

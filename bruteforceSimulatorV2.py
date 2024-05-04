@@ -120,13 +120,13 @@ def combine_csv_files(output_file):
     combined_df = pd.concat(dfs, ignore_index=True)
     
     # Write the combined DataFrame to a new CSV file
-    combined_df = sort_dataframe_by_datetime(combined_df, "Timestamp")
+    # combined_df = sort_dataframe_by_datetime(combined_df, "Timestamp")
     combined_df.to_csv(output_file, index=False)
     print("Combined CSV file saved successfully!")
 
 
 if __name__ == "__main__":
-    timeframe = "4"
+    timeframe = "15"
     pairName = "XAUUSD"
     
     finalcomboData = []
@@ -138,6 +138,7 @@ if __name__ == "__main__":
     # --------------- Dont touch at all!!  ------------------- 
     input_file = "combo.csv"   
     combine_csv_files(input_file)
+    minute_dataframes = generate_min_dataframes(input_file,timeframe)
     for combo in tqdm(combinations):
         print(combo)
         # new inputs
@@ -155,7 +156,6 @@ if __name__ == "__main__":
         tpReduce = 0.1
         middleLinePosition = 1
         # dont touch below -----------------
-        minute_dataframes = generate_min_dataframes(input_file,timeframe)
         allOrders = []
         data = []
         ifOrderRunning = False
@@ -625,15 +625,26 @@ if __name__ == "__main__":
             # #-------print('-------------------------------')
         
         
-        tempData = []
-        tempData.append(numberOfOldCandleColor)
-        tempData.append(oldCandlePriceMove)
-        tempData.append(FinalCandleSize)
-        tempData.append(len(ComboData))
-        tempData.append(max(ComboData))
-        finalcomboData.append(tempData)
-        df = pd.DataFrame(finalcomboData, columns=['numberOfOldCandleColor', 'oldCandlePriceMove', 'FinalCandleSize','Orders','Max Cycle'])
-        df.to_csv('Final_combo_{}.csv'.format(pairName))
-
+        if len(ComboData) > 0:
+            tempData = []
+            tempData.append(numberOfOldCandleColor)
+            tempData.append(oldCandlePriceMove)
+            tempData.append(FinalCandleSize)
+            tempData.append(len(ComboData))
+            tempData.append(max(ComboData))
+            finalcomboData.append(tempData)
+            df = pd.DataFrame(finalcomboData, columns=['numberOfOldCandleColor', 'oldCandlePriceMove', 'FinalCandleSize','Orders','Max Cycle'])
+            df.to_csv('Final_combo_{}.csv'.format(pairName))
+        else:
+            tempData = []
+            tempData.append(numberOfOldCandleColor)
+            tempData.append(oldCandlePriceMove)
+            tempData.append(FinalCandleSize)
+            tempData.append(0)
+            tempData.append(0)
+            finalcomboData.append(tempData)
+            df = pd.DataFrame(finalcomboData, columns=['numberOfOldCandleColor', 'oldCandlePriceMove', 'FinalCandleSize','Orders','Max Cycle'])
+            df.to_csv('Final_combo_{}.csv'.format(pairName))
+            
             
             

@@ -56,54 +56,22 @@ def writeData(dt, dte):
     col = ["Date",'Order Type', 'Entry Price', 'Cad Size',"middle line", 'SL - 1 ', 'TP - 1', 'SL - 2', 'TP - 2', 'Order Index', 'Outcome', 'Close Price',"Close Time"]
     df = pd.DataFrame(allOrders, columns=col)
     df.to_csv('{}.csv'.format(fileName))
-    #--input('Order Closed!! ')
+    #--print'Order Closed!! ')
     # #--print('here')
-
-
-def v2Analysis(candles):
-    global oldCandlePriceMove
-    #print('\n\n')
-    #print(candles)
-    cadColor = candles[0][1]
     
-    bodySize = 0
-    for cad in candles:
-        if cadColor != cad[1]:
-            #print('Color missmatch')
-            return False
-        bodySize += cad[0]
-    
-    if oldCandlePriceMove <= bodySize:
-        #print('Color matched and Body size matched too, Body Size: ',bodySize)
-        return True
-    else:
-        #print('Color Matched but body size isnot! ')
-        return False
-
-def checkEntry():
-    global candlesDataHub
-    # at least some old candle needed
-    if len(candlesDataHub) > numberOfOldCandleColor :
-        cads = candlesDataHub[-numberOfOldCandleColor-1:-1]
-        prevCandleFlag = v2Analysis(cads)
-        if prevCandleFlag:
-            candleFlag = cads[0][1]
-            if candleFlag != candlesDataHub[-1][1]:
-                if candlesDataHub[-1][0] > FinalCandleSize :
-                    print('HERE ORDER!!!!!!!!')
-                    return True
-    return False
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSDm_2024_01.csv"   # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSDm_2022.csv"   # Replace with the path to your input CSV file
     timeframe = "15"
-    entryCandle_min = 5
-    entryCandle_max = 12
-    pairName = "XAUUSD"
+    entryCandle_min = 4
+    entryCandle_max = 20
+    pairName = "XAUUSDm"
     start_time = 0
-    end_time = 24
+    end_time = 12
     tpReduce = 0.1
-    middleLinePosition = 1
+    middleLinePosition = 1.25
+    newFirstOrderTP = 2 # ex. if u put 1.25 then, 1.25 * CANDLE BODY will be TP
+    
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
     allOrders = []
@@ -121,45 +89,34 @@ if __name__ == "__main__":
     zeroLine = 0
     middleLine = 0
     orderCounter = 0
-    candlesDataHub = []
-    
-    # new inputs
-    numberOfOldCandleColor = 2
-    oldCandlePriceMove = 3 # points
-    FinalCandleSize =  1 # points
     
     # Example: Accessing dataframes for each minute
     for minute, dataframe in minute_dataframes.items():
         print(f"Minute: {minute}")
-        if not is_between_time(str(minute)):
-            print('skip!! - ',minute)
-            # input('here')
+        if not is_between_time(str(minute)) and not ifOrderRunning:
+            #--print('skip!! - ',minute)
+            # #--print'here')
             continue  
         
-        try:
-            candle = create_candle(dataframe)
-        except:
-            continue
-        candleInfo = checkCandleBody(candle)
-        # candleInfo.append(minute)
-        candlesDataHub.append(candleInfo)
-        #print(candleInfo)
         # and is_between_time(str(minute))
         if not ifOrderRunning:
-            entryCond = checkEntry()
-            clrOfTheCandle = candlesDataHub[-1][1]
-            cadSize  = candlesDataHub[-1][0]
-            if entryCond:
+            try:
+                candle = create_candle(dataframe)
+            except:
+                continue
+            cadSize , direc = checkCandleBody(candle)
+            if cadSize >= entryCandle_min and cadSize <= entryCandle_max:
                 #--print('\n\n------------------------------')
                 #--print('\n\n Entry!', cadSize, direc, candle)
                 zeroLine = candle[1] 
                 ifOrderRunning = True
-                orderType = clrOfTheCandle
+                orderType = direc
                 orderCounter = 0
                 cadBodySize = cadSize
-                if clrOfTheCandle == 'GREEN': # BUY
+                if direc: # BUY
                     sl = candle[1] - (cadSize*2)
                     tp = candle[1] + (cadSize* (1-tpReduce))
+                    tempTP = candle[1] + (cadSize* newFirstOrderTP)
                     middleLine = candle[1] - (cadSize*middleLinePosition)
                     #--print('BUY')
                     #--print('Open Price: ', candle[1])
@@ -177,10 +134,12 @@ if __name__ == "__main__":
                     data.append(0)
                     data.append(0)
                     data.append(0)
+                    #--print'next..')
                     continue
                 else: # SELL
                     sl = candle[1] + (cadSize*2)
-                    tp = candle[1] - (cadSize*0.9)
+                    tp = candle[1] - (cadSize* (1-tpReduce))
+                    tempTP = candle[1] - (cadSize* newFirstOrderTP)
                     middleLine = candle[1] + (cadSize*middleLinePosition)
                     #--print('SELL')
                     #--print('Open Price: ', candle[1])
@@ -198,8 +157,8 @@ if __name__ == "__main__":
                     data.append(0)
                     data.append(0)
                     data.append(0)
+                    #--print'next..')
                     continue
-                #--input('next..')
         if ifOrderRunning:
             for ind,row in dataframe.iterrows():
                 if orderType: # if its a BUY
@@ -209,87 +168,88 @@ if __name__ == "__main__":
                         orderCounter = 1
                         sl2 = tp + (cadBodySize*tpReduce)
                         tp2 = sl + (cadBodySize*tpReduce)
+                        # tp2 = middleLine - (cadBodySize*tpReduce)
                         data[-3] = sl2
                         data[-2] = tp2
                         data[-1] = orderCounter
                         #--print('2nd TP: ', tp2)
                         #--print("2nd SL: ",sl2)
-                        #--input('__2')
+                        #--print'__2')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 1:  # order 3 -> BUY
                         #--print("new Order: ", row['Bid'])
                         orderCounter = 2
                         data[-1] = orderCounter
-                        #--input('__3')
+                        #--print'__3')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==2: # order 4 -> SELL
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 3
                         data[-1] = orderCounter
-                        #--input('__4')
+                        #--print'__4')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 3:  # order 5 -> BUY
                         #--print("new Order: ", row['Bid'])
                         orderCounter = 4
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==4: # order 6 -> SELL
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 5
                         data[-1] = orderCounter
-                        #--input('__6')
+                        #--print'__6')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 5:  # order 5 -> BUY
                         #--print("new Order: ", row['Bid'])
                         orderCounter = 6
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==6: # order 6 -> SELL
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 7
                         data[-1] = orderCounter
-                        #--input('__6')
+                        #--print'__6')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 7:  # order 5 -> BUY
                         #--print("new Order: ", row['Bid'])
                         orderCounter = 8
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==8: # order 6 -> SELL
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 9
                         data[-1] = orderCounter
-                        #--input('__6')
+                        #--print'__6')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 9:  # order 5 -> BUY
                         #--print("new Order: ", row['Bid'])
                         orderCounter = 10
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==10: # order 6 -> SELL
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 11
                         data[-1] = orderCounter
-                        #--input('__6')
+                        #--print'__6')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 11:  # order 5 -> BUY
                         #--print("new Order: ", row['Bid'])
                         orderCounter = 12
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==11: # order 6 -> SELL
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 7
                         data[-1] = orderCounter
-                        #--input('__6')
+                        #--print'__6')
                         continue
                     
-                    if orderCounter == 0 and row['Bid'] >= tp: # for the first order - BUY
+                    if orderCounter == 0 and row['Bid'] >= tempTP: # for the first order - BUY
                         #--print('Its a win!! Order 1 ', "Price :", row["Ask"])
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -399,77 +359,78 @@ if __name__ == "__main__":
                     if row['Ask'] >= middleLine and orderCounter == 0: # order 2 - BUY
                         #--print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 1
-                        sl2 = tp + (cadBodySize*tpReduce)
-                        tp2 = sl + (cadBodySize*tpReduce)
+                        sl2 = tp - (cadBodySize*tpReduce)
+                        tp2 = sl - (cadBodySize*tpReduce)
+                        # tp2 =middleLine + (cadBodySize*tpReduce)
                         data[-3] = sl2
                         data[-2] = tp2
                         data[-1] = orderCounter
                         #--print('2nd TP: ', tp2)
                         #--print("2nd SL: ",sl2) 
-                        #--input('__2') 
+                        #--print'__2') 
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 1:  # order 3 - sell
                         #--print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 2
                         data[-1] = orderCounter
-                        #--input('__3')
+                        #--print'__3')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==2: # order 4 - buy
                         #--print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 3
                         data[-1] = orderCounter
-                        #--input('__4')    
+                        #--print'__4')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 3:  # order 5 - sell
                         #--print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 4
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==4: # order 6 - buy
                         #--print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 5
                         data[-1] = orderCounter
-                        #--input('__6')    
+                        #--print'__6')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 5:  # order 7 - sell
                         #--print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 6
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==6: # order 6 - buy
                         #--print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 7
                         data[-1] = orderCounter
-                        #--input('__6')    
+                        #--print'__6')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 7:  # order 7 - sell
                         #--print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 8
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==8: # order 6 - buy
                         #--print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 9
                         data[-1] = orderCounter
-                        #--input('__6')    
+                        #--print'__6')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 9:  # order 7 - sell
                         #--print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 10
                         data[-1] = orderCounter
-                        #--input('__5')
+                        #--print'__5')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==10: # order 6 - buy
                         #--print("new BUY Order Price: ", row['Bid'])
                         orderCounter = 11
                         data[-1] = orderCounter
-                        #--input('__6')    
+                        #--print'__6')    
                         continue
                     
-                    if orderCounter == 0 and row['Ask'] <= tp: # for the first order - SELL
+                    if orderCounter == 0 and row['Ask'] <= tempTP: # for the first order - SELL
                         #--print('Its a win!! Order 1', "Price :", row["Ask"])
                         data.append('WIN')
                         data.append(row['Bid'])

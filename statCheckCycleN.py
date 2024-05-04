@@ -67,7 +67,7 @@ def MM(dropdown):
     # order - 1
     val = (balance * baseRiskRush)/100
     order1 = (val * additinonalMuliplierRush[0]) 
-    results.append([order1, order1 * pf[0]])
+    results.append([order1, order1 * firstOrderPF])
     
     # order - 2
     val = (order1 * (1/pf[1]) ) 
@@ -158,13 +158,19 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'XAUUSD_ci_15m.csv'
+    fileName = 'eur_ci_v2_60m (1).csv'
     baseRiskRush = 5
-    pf = [0.45,1, 0.45 ,1, 0.45 ,1, 0.45 ,1, 0.45 ,1, 0.45 ,1]
-    additinonalMuliplierRush = [1,2 ,1.3,1.2,1.1,1,1,1,0.8,0.8,0.8,0.8]
+    evenOrderPF = 0.375
+    oddOrderPf = 0.45
+    firstOrderPF = 1.25
+    oldFirstOrderPf = 0.45
+    
+    additinonalMuliplierRush = [1,1.5,1.4,1.3,1.2,1,1,1,0.8,0.8,0.8,0.8]
     globalBalance = 10000
     highOrder = 1000 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 
+    firstOrderCounter = 0 
+    pf = [firstOrderPF,evenOrderPF,  oddOrderPf ,evenOrderPF,  oddOrderPf ,evenOrderPF,  oddOrderPf ,evenOrderPF,  oddOrderPf ,evenOrderPF, oddOrderPf ,evenOrderPF]
     balance = 100
     df = pd.read_csv(fileName)
     
@@ -198,6 +204,7 @@ if __name__ == '__main__':
         temp = orders.count(id)
         print("Cycle {} : {} Times ({}%)".format(id+1, temp, round((temp/len(orders))*100,2)))
     # exit()
+    firstOrderCounter = orders.count(0)
     print('\n___________\n')
     print('Hour calculation')
     print('\n___________\n')
@@ -281,25 +288,12 @@ if __name__ == '__main__':
     df1 = pd.DataFrame(all_data, columns= col)
     df1.to_csv('final_{}'.format(fileName))
     print('FInal balance (%): ', newBal)
-    print('Max Dropdown: ', round(max(dropdowns),2))
-    print("Max Loss Can Be : ", min(ifLoss))
+    print('Gain From only the First Order % : {}'.format(firstOrderCounter*baseRiskRush*firstOrderPF))
+    oldBal = (newBal - (firstOrderCounter*baseRiskRush*firstOrderPF)) + (firstOrderCounter*baseRiskRush*oldFirstOrderPf)
+    print("Total gain if we use the old PF ( for the first order) : {}".format(
+       oldBal
+    ))
+    print('Overall Gain will increase with this first order PF increase :',newBal-oldBal)
+    # print('Max Dropdown: ', round(max(dropdowns),2))
+    # print("Max Loss Can Be : ", min(ifLoss))
     
-    exit()
-    print('\n___________\n')
-    print('Loss stats')
-    print('\n___________\n')
-
-    
-    losses_per_week, losses_per_month, weeks_with_loss, weeks_without_loss = count_losses_per_period(fileName)
-    print("Number of 'LOSS' per week:")
-    print(losses_per_week)
-    print("\nNumber of 'LOSS' per month:")
-    print(losses_per_month)
-    print("\nWeeks with loss:", weeks_with_loss)
-    print("Weeks without loss:", weeks_without_loss)
-    
-    
-
-    
-    
- 
