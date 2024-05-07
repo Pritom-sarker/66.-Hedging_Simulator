@@ -160,12 +160,12 @@ if __name__ == '__main__':
     
     fileName = 'eur_ci_v2_60m (1).csv'
     baseRiskRush = 5
-    evenOrderPF = 0.375
+    evenOrderPF = 0.45
     oddOrderPf = 0.45
-    firstOrderPF = 1.25
+    firstOrderPF = 0.45
     oldFirstOrderPf = 0.45
     
-    additinonalMuliplierRush = [1,1.5,1.4,1.3,1.2,1,1,1,0.8,0.8,0.8,0.8]
+    additinonalMuliplierRush = [1, 1.5, 1.4, 1.3, 1.2, 1, 1, 1, 1, 0.8, 0.8, 0.8]
     globalBalance = 10000
     highOrder = 1000 # if u put 2, mean 2X of the balance , put 100 if u dont wanna use it
     # dont touch below --------------- 

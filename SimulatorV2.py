@@ -57,44 +57,45 @@ def writeData(dt, dte):
     col = ["Date",'Order Type', 'Entry Price', 'Cad Size',"middle line", 'SL - 1 ', 'TP - 1', 'SL - 2', 'TP - 2', 'Order Index', 'Outcome', 'Close Price',"Close Time"]
     df = pd.DataFrame(allOrders, columns=col)
     df.to_csv('{}.csv'.format(fileName))
-    #-------input('Order Closed!! ')
-    # #-------print('here')
+    #----input('Order Closed!! ')
+    # #----print('here')
 
 def v2Analysis(candles):
     global oldCandlePriceMove
-    ##-------print('\n\n')
-    ##-------print(candles)
+    ##----print('\n\n')
+    ##----print(candles)
     cadColor = candles[0][1]
     
     bodySize = 0
     for cad in candles:
         if cadColor != cad[1]:
-            ##-------print('Color missmatch')
+            ##----print('Color missmatch')
             return False
         bodySize += cad[0]
     
     if oldCandlePriceMove <= bodySize:
-        ##-------print('Color matched and Body size matched too, Body Size: ',bodySize)
+        ##----print('Color matched and Body size matched too, Body Size: ',bodySize)
         return True
     else:
-        ##-------print('Color Matched but body size isnot! ')
+        ##----print('Color Matched but body size isnot! ')
         return False
 
 if __name__ == "__main__":
-    input_file = "Exness_USDJPY_2022.csv"   # Replace with the path to your input CSV file
-    timeframe = "60"
-    pairName = "USDJPY"
+    input_file = "Exness_XAUUSDm_2024_05_07.csv"   # Replace with the path to your input CSV file
+    timeframe = "5"
+    pairName = "xauusd"
     
     # new inputs
-    numberOfOldCandleColor = 2
-    oldCandlePriceMove = 0.15 # points
-    FinalCandleSize =  0.1 # points
+    numberOfOldCandleColor = 4
+    oldCandlePriceMove = 2# points
+    FinalCandleSize =  0.5 # points
+    FinalCandleSizeMax = 5
     tpReduce = 0.1
     middleLinePosition = 1.25
     newFirstOrderTP = 2 # ex. if u put 1.25 then, 1.25 * CANDLE BODY will be TP
     
     start_time = 0
-    end_time = 14
+    end_time = 24
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
     allOrders = []
@@ -120,23 +121,23 @@ if __name__ == "__main__":
         
         print(f"Minute: {minute}")
         
-        if not is_between_time(str(minute)):
-            print('skip!! - ',minute)
-            # input('here')
+        if not is_between_time(str(minute)) and not ifOrderRunning:
+            #----print('skip!! - ',minute)
+            # #----input('here')
             continue  
         
         try:
             candle = create_candle(dataframe)
         except:
-            ##-------print("Error creating Candle",minute)
-            # ##-------print(dataframe.head())
-            # #-------input("XXX")
+            ##----print("Error creating Candle",minute)
+            # ##----print(dataframe.head())
+            # #----input("XXX")
             continue
 
         candleInfo = checkCandleBody(candle)
         candlesDataHub.append(candleInfo)
         # candleInfo.append(minute)
-        ##-------print(candleInfo)
+        ##----print(candleInfo)
         
         if not ifOrderRunning:
             # at least some old candle needed
@@ -145,11 +146,11 @@ if __name__ == "__main__":
                 prevCandleFlag = v2Analysis(cads)
                 if prevCandleFlag:
                     candleFlag = cads[0][1]
-                    if candleFlag == candlesDataHub[-1][1]: # change here.......... == Same color candle or != differnt color
-                        if candlesDataHub[-1][0] > FinalCandleSize :
-                            ##-------print(candlesDataHub[-1])
-                            # #-------input('xxxx')
-                            print('\n\n\n NEW ORDER !!!!!!! Order! ', minute)
+                    if candleFlag != candlesDataHub[-1][1]: # change here.......... == Same color candle or != differnt color
+                        if candlesDataHub[-1][0] > FinalCandleSize and candlesDataHub[-1][0] < FinalCandleSizeMax:
+                            ##----print(candlesDataHub[-1])
+                            # #----input('xxxx')
+                            #----print('\n\n\n NEW ORDER !!!!!!! Order! ', minute)
                             # continue
                             zeroLine = candle[1] 
                             ifOrderRunning = True
@@ -172,23 +173,23 @@ if __name__ == "__main__":
                                 data.append(0)
                                 data.append(0)
                                 data.append(0)
-                                #-------print('BUY')
-                                #-------print('Open Price: ', candle[1])
-                                #-------print('middleLine: ', middleLine)
-                                #-------print('SL: ', sl)
-                                #-------print('tp: ', tp)
-                                #-------input('\n\n\n\n\Order Placed next..')
+                                #----print('BUY')
+                                #----print('Open Price: ', candle[1])
+                                #----print('middleLine: ', middleLine)
+                                #----print('SL: ', sl)
+                                #----print('tp: ', tp)
+                                #----input('\n\n\n\n\Order Placed next..')
                                 continue
                             else: # SELL
                                 sl = candle[1] + (cadBodySize*2)
                                 tp = candle[1] - (cadBodySize*0.9)
                                 middleLine = candle[1] + (cadBodySize*middleLinePosition)
                                 tempTP = candle[1] - (cadBodySize* newFirstOrderTP)
-                                #-------print('SELL')
-                                #-------print('Open Price: ', candle[1])
-                                #-------print('middle Line: ', middleLine)
-                                #-------print('SL: ', sl)
-                                #-------print('tp: ', tp)
+                                #----print('SELL')
+                                #----print('Open Price: ', candle[1])
+                                #----print('middle Line: ', middleLine)
+                                #----print('SL: ', sl)
+                                #----print('tp: ', tp)
                                 data = []
                                 data.append(minute)
                                 data.append('SELL')
@@ -200,7 +201,7 @@ if __name__ == "__main__":
                                 data.append(0)
                                 data.append(0)
                                 data.append(0)
-                                #-------input('\n\n\n\n\Order Placed next..')
+                                #----input('\n\n\n\n\Order Placed next..')
                                 continue
 
         if ifOrderRunning:
@@ -208,80 +209,80 @@ if __name__ == "__main__":
                 if orderType == "GREEN": # if its a BUY
                     # check for new order (2,3,4)
                     if row['Bid'] <= middleLine and orderCounter == 0: # order 2 -> SELL
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 1
                         sl2 = tp + (cadBodySize*tpReduce)
                         tp2 = sl + (cadBodySize*tpReduce)
                         data[-3] = sl2
                         data[-2] = tp2
                         data[-1] = orderCounter
-                        #-------print('2nd TP: ', tp2)
-                        #-------print("2nd SL: ",sl2)
-                        #-------input('__2')
+                        #----print('2nd TP: ', tp2)
+                        #----print("2nd SL: ",sl2)
+                        #----input('__2')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 1:  # order 3 -> BUY
-                        #-------print("new Order: ", row['Bid'])
+                        #----print("new Order: ", row['Ask'])
                         orderCounter = 2
                         data[-1] = orderCounter
-                        #-------input('__3')
+                        #----input('__3')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==2: # order 4 -> SELL
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 3
                         data[-1] = orderCounter
-                        #-------input('__4')
+                        #----input('__4')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 3:  # order 5 -> BUY
-                        #-------print("new Order: ", row['Bid'])
+                        #----print("new Order: ", row['Ask'])
                         orderCounter = 4
                         data[-1] = orderCounter
-                        #-------input('__5')
+                        #----input('__5')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==4: # order 6 -> SELL
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 5
                         data[-1] = orderCounter
-                        #-------input('__6')
+                        #----input('__6')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 5:  # order 5 -> BUY
-                        #-------print("new Order: ", row['Bid'])
+                        #----print("new Order: ", row['Ask'])
                         orderCounter = 6
                         data[-1] = orderCounter
-                        #-------input('__7')
+                        #----input('__7')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==6: # order 6 -> SELL
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 7
                         data[-1] = orderCounter
-                        #-------input('__8')
+                        #----input('__8')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 7:  # order 5 -> BUY
-                        #-------print("new Order: ", row['Bid'])
+                        #----print("new Order: ", row['Ask'])
                         orderCounter = 8
                         data[-1] = orderCounter
-                        #-------input('__9')
+                        #----input('__9')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==8: # order 6 -> SELL
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 9
                         data[-1] = orderCounter
-                        #-------input('__10')
+                        #----input('__10')
                         continue
                     elif  row['Ask'] >= zeroLine and orderCounter == 9:  # order 5 -> BUY
-                        #-------print("new Order: ", row['Bid'])
+                        #----print("new Order: ", row['Ask'])
                         orderCounter = 10
                         data[-1] = orderCounter
-                        #-------input('__11')
+                        #----input('__11')
                         continue
                     elif row['Bid'] <= middleLine and orderCounter ==10: # order 6 -> SELL
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 11
                         data[-1] = orderCounter
-                        #-------input('__12')
+                        #----input('__12')
                         continue
                     
                     if orderCounter == 0 and row['Bid'] >= tempTP: # for the first order - BUY
-                        #-------print('Its a win!! Order 1 ', "Price :", row["Ask"])
+                        #----print('Its a win!! Order 1 ', "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -289,15 +290,15 @@ if __name__ == "__main__":
                         break
                         
                     if orderCounter == 1 and row['Ask'] <= tp2: # for 2nd order - SELL
-                        #-------print("its a win!! Order 2", "Price :", row["Ask"])
+                        #----print("its a win!! Order 2", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                         
                     if  orderCounter == 2 and row['Bid'] >= tp: # for 3nd order - BUY
-                        #-------print("its a win!! Order 3", "Price :", row["Ask"])
+                        #----print("its a win!! Order 3", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -305,15 +306,15 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 3 and row['Ask'] <= tp2: # for 4th order
-                        #-------print("its a win!! Order 4", "Price :", row["Ask"])
+                        #----print("its a win!! Order 4", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 4 and row['Bid'] >= tp: # for 5th order
-                        #-------print("its a win!! Order 5", "Price :", row["Ask"])
+                        #----print("its a win!! Order 5", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -321,15 +322,15 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 5 and row['Ask'] <= tp2: # for 6th order
-                        #-------print("its a win!! Order 6", "Price :", row["Ask"])
+                        #----print("its a win!! Order 6", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 6 and row['Bid'] >= tp: # for 5th order
-                        #-------print("its a win!! Order 7", "Price :", row["Ask"])
+                        #----print("its a win!! Order 7", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -337,15 +338,15 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 7 and row['Ask'] <= tp2: # for 6th order
-                        #-------print("its a win!! Order 8", "Price :", row["Ask"])
+                        #----print("its a win!! Order 8", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 8 and row['Bid'] >= tp: # for 5th order
-                        #-------print("its a win!! Order 9", "Price :", row["Ask"])
+                        #----print("its a win!! Order 9", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -353,15 +354,15 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 9 and row['Ask'] <= tp2: # for 6th order
-                        #-------print("its a win!! Order 10", "Price :", row["Ask"])
+                        #----print("its a win!! Order 10", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 10 and row['Bid'] >= tp: # for 5th order
-                        #-------print("its a win!! Order 11", "Price :", row["Ask"])
+                        #----print("its a win!! Order 11", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -369,7 +370,7 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 11 and row['Ask'] <= tp2: # for 6th order
-                        #-------print("its a win!! Order 12", "Price :", row["Ask"])
+                        #----print("its a win!! Order 12", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -377,99 +378,99 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 11 and row['Ask'] >= sl2: # for loss order
-                        #-------print("its a Loss!! ", "Price :", row["Ask"])
+                        #----print("its a Loss!! ", "Price :", row["Ask"])
                         writeData(data, ind)
                         ifOrderRunning = False
                         data.append('Loss')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         break
                             
                 
                 if orderType == "RED": # if its a Sell
                         
                     if row['Ask'] >= middleLine and orderCounter == 0: # order 2 - BUY
-                        #-------print("new BUY Order Price: ", row['Bid'])
+                        #----print("new BUY Order Price: ", row['Ask'])
                         orderCounter = 1
                         sl2 = tp - (cadBodySize*tpReduce)
                         tp2 = sl - (cadBodySize*tpReduce)
                         data[-3] = sl2
                         data[-2] = tp2
                         data[-1] = orderCounter
-                        #-------print('2nd TP: ', tp2)
-                        #-------print("2nd SL: ",sl2) 
-                        #-------input('__2') 
+                        #----print('2nd TP: ', tp2)
+                        #----print("2nd SL: ",sl2) 
+                        #----input('__2') 
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 1:  # order 3 - sell
-                        #-------print("new SELL Order Price: ", row['Bid'])
+                        #----print("new SELL Order Price: ", row['Bid'])
                         orderCounter = 2
                         data[-1] = orderCounter
-                        #-------input('__3')
+                        #----input('__3')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==2: # order 4 - buy
-                        #-------print("new BUY Order Price: ", row['Bid'])
+                        #----print("new BUY Order Price: ", row['Ask'])
                         orderCounter = 3
                         data[-1] = orderCounter
-                        #-------input('__4')    
+                        #----input('__4')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 3:  # order 5 - sell
-                        #-------print("new SELL Order Price : ", row['Bid'])
+                        #----print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 4
                         data[-1] = orderCounter
-                        #-------input('__5')
+                        #----input('__5')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==4: # order 6 - buy
-                        #-------print("new BUY Order Price: ", row['Bid'])
+                        #----print("new BUY Order Price: ", row['Ask'])
                         orderCounter = 5
                         data[-1] = orderCounter
-                        #-------input('__6')    
+                        #----input('__6')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 5:  # order 7 - sell
-                        #-------print("new SELL Order Price : ", row['Bid'])
+                        #----print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 6
                         data[-1] = orderCounter
-                        #-------input('__7')
+                        #----input('__7')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==6: # order 6 - buy
-                        #-------print("new BUY Order Price: ", row['Bid'])
+                        #----print("new BUY Order Price: ", row['Ask'])
                         orderCounter = 7
                         data[-1] = orderCounter
-                        #-------input('__8')    
+                        #----input('__8')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 7:  # order 7 - sell
-                        #-------print("new SELL Order Price : ", row['Bid'])
+                        #----print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 8
                         data[-1] = orderCounter
-                        #-------input('__9')
+                        #----input('__9')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==8: # order 6 - buy
-                        #-------print("new BUY Order Price: ", row['Bid'])
+                        #----print("new BUY Order Price: ", row['Ask'])
                         orderCounter = 9
                         data[-1] = orderCounter
-                        #-------input('__10')    
+                        #----input('__10')    
                         continue
                     elif  row['Bid'] <= zeroLine and orderCounter == 9:  # order 7 - sell
-                        #-------print("new SELL Order Price : ", row['Bid'])
+                        #----print("new SELL Order Price : ", row['Bid'])
                         orderCounter = 10
                         data[-1] = orderCounter
-                        #-------input('__11')
+                        #----input('__11')
                         continue
                     elif row['Ask'] >= middleLine and orderCounter ==10: # order 6 - buy
-                        #-------print("new BUY Order Price: ", row['Bid'])
+                        #----print("new BUY Order Price: ", row['Ask'])
                         orderCounter = 11
                         data[-1] = orderCounter
-                        #-------input('__12')    
+                        #----input('__12')    
                         continue
                     
                     if orderCounter == 0 and row['Ask'] <= tempTP: # for the first order - SELL
-                        #-------print('Its a win!! Order 1', "Price :", row["Ask"])
+                        #----print('Its a win!! Order 1', "Price :", row["Ask"])
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         ifOrderRunning = False
                         writeData(data, ind)
                         break
                         
                     if orderCounter == 1 and row['Bid'] >= tp2: # for 2nd order - BUY
-                        #-------print("its a win!! Order 2", "Price :", row["Ask"])
+                        #----print("its a win!! Order 2", "Price :", row["Ask"])
                         data.append('WIN')
                         data.append(row['Bid'])
                         ifOrderRunning = False
@@ -477,15 +478,15 @@ if __name__ == "__main__":
                         break
                         
                     if  orderCounter == 2 and row['Ask'] <= tp: # for 3nd order - SELL
-                        #-------print("its a win!! Order 3", "Price :", row["Ask"])
+                        #----print("its a win!! Order 3", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 3 and row['Bid'] >= tp2: # for 4th order - BUY
-                        #-------print("its a win!! Order 4", "Price :", row["Ask"])
+                        #----print("its a win!! Order 4", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -493,15 +494,15 @@ if __name__ == "__main__":
                         break
                         
                     if  orderCounter == 4 and row['Ask'] <= tp: # for 5nd order - SELL
-                        #-------print("its a win!! Order 5", "Price :", row["Ask"])
+                        #----print("its a win!! Order 5", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 5 and row['Bid'] >= tp2: # for 6th order - BUY
-                        #-------print("its a win!! Order 6", "Price :", row["Ask"])
+                        #----print("its a win!! Order 6", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -509,15 +510,15 @@ if __name__ == "__main__":
                         break
                         
                     if  orderCounter == 6 and row['Ask'] <= tp: # for 5nd order - SELL
-                        #-------print("its a win!! Order 7", "Price :", row["Ask"])
+                        #----print("its a win!! Order 7", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 7 and row['Bid'] >= tp2: # for 6th order - BUY
-                        #-------print("its a win!! Order 8", "Price :", row["Ask"])
+                        #----print("its a win!! Order 8", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -525,15 +526,15 @@ if __name__ == "__main__":
                         break
                         
                     if  orderCounter == 8 and row['Ask'] <= tp: # for 5nd order - SELL
-                        #-------print("its a win!! Order 9", "Price :", row["Ask"])
+                        #----print("its a win!! Order 9", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 9 and row['Bid'] >= tp2: # for 6th order - BUY
-                        #-------print("its a win!! Order 10", "Price :", row["Ask"])
+                        #----print("its a win!! Order 10", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -541,15 +542,15 @@ if __name__ == "__main__":
                         break
                         
                     if  orderCounter == 10 and row['Ask'] <= tp: # for 5nd order - SELL
-                        #-------print("its a win!! Order 11", "Price :", row["Ask"])
+                        #----print("its a win!! Order 11", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
-                        data.append(row['Bid'])
+                        data.append(row['Ask'])
                         writeData(data, ind)
                         break
                     
                     if orderCounter == 11 and row['Bid'] >= tp2: # for 6th order - BUY
-                        #-------print("its a win!! Order 12", "Price :", row["Ask"])
+                        #----print("its a win!! Order 12", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('WIN')
                         data.append(row['Bid'])
@@ -557,7 +558,7 @@ if __name__ == "__main__":
                         break
                     
                     if orderCounter == 11 and row['Bid'] <= sl2: # for loss order
-                        #-------print("its a Loss!!", "Price :", row["Ask"])
+                        #----print("its a Loss!!", "Price :", row["Ask"])
                         ifOrderRunning = False
                         data.append('LOSS')
                         data.append(row['Bid'])
@@ -565,7 +566,6 @@ if __name__ == "__main__":
                         break    
                         
                         
-        # #-------print('-------------------------------')
 
         
         
