@@ -61,15 +61,15 @@ def writeData(dt, dte):
     
 
 if __name__ == "__main__":
-    input_file = "Exness_XAUUSDm_2024_04_23.csv"   # Replace with the path to your input CSV file
+    input_file = "Exness_XAUUSDm_2024_05_07.csv"   # Replace with the path to your input CSV file
     timeframe = "15"
-    entryCandle_min = 3
-    entryCandle_max = 20
+    entryCandle_min = 0.3
+    entryCandle_max = 2
     pairName = "XAUUSDm"
     start_time = 0
     end_time = 24
     tpReduce = 0.1
-    middleLinePosition = 1.25
+    middleLinePosition = 1
     # dont touch below -----------------
     minute_dataframes = generate_min_dataframes(input_file,timeframe)
     allOrders = []

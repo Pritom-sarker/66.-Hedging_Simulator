@@ -158,7 +158,7 @@ def analyze_weekly_performance(csv_file):
 
 if __name__ == '__main__':
     
-    fileName = 'eur_ci_v2_60m (1).csv'
+    fileName = 'XAUUSDm_ci_15m.csv'
     baseRiskRush = 5
     evenOrderPF = 0.45
     oddOrderPf = 0.45

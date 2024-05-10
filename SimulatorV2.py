@@ -82,7 +82,7 @@ def v2Analysis(candles):
 
 if __name__ == "__main__":
     input_file = "Exness_XAUUSDm_2024_05_07.csv"   # Replace with the path to your input CSV file
-    timeframe = "5"
+    timeframe = "10"
     pairName = "xauusd"
     
     # new inputs
